@@ -1,0 +1,23 @@
+[
+    {
+      "command": ["/sbin/init"],
+      "privileged": true,
+      "name": "msy-container",
+      "image": "842690730774.dkr.ecr.ap-southeast-1.amazonaws.com/msy:latest",
+      "cpu": 10,
+      "memory": 256,
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 80
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": { 
+          "awslogs-group" : "/aws/ecs/msy-backend-container",
+          "awslogs-region": "ap-southeast-1"
+        }
+      }
+    }
+]
