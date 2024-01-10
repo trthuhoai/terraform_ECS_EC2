@@ -1,0 +1,60 @@
+[
+    {
+      "privileged": true,
+      "name": "app",
+      "image": "${app_image}",
+      "cpu": 10,
+      "memory": 256,
+      "essential": true,
+      "mountPoints": [
+        {
+          "readOnly": false,
+          "containerPath": "/var/www/html",
+          "sourceVolume": "webapp"
+        }],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": { 
+          "awslogs-group" : "/aws/ecs/prod-deviceme-container",
+          "awslogs-region": "${region}",
+          "awslogs-stream-prefix": "ecs"
+        }
+      }
+    },
+    {
+      "name": "nginx",
+      "image":"${nginx_image}",
+      "cpu": 10,
+      "memory": 256,
+      "mountPoints": [
+          {
+            "readOnly": false,
+            "containerPath": "/var/www/html",
+            "sourceVolume": "webapp"
+          }
+        ],
+      "links": ["app:app"],
+      "logConfiguration": {
+          "logDriver": "awslogs",
+          "options": {
+            "awslogs-group": "/aws/ecs/prod-deviceme-container",
+            "awslogs-region": "${region}",
+            "awslogs-stream-prefix": "ecs"
+          }
+      },
+      
+      "portMappings": [
+        {
+          "hostPort": 80,
+          "protocol": "tcp",
+          "containerPort": 80
+        }
+      ],
+       "dependsOn": [
+        {
+            "containerName": "app",
+            "condition": "START"
+          }
+        ]
+    }
+]
