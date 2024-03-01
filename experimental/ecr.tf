@@ -4,10 +4,6 @@ resource "aws_ecr_repository" "app_repo" {
   image_scanning_configuration {
     scan_on_push = true
   }
-  tags = {
-    "env"       = "dev"
-    "createdBy" = "mkerimova"
-  }
 }
 
 resource "aws_ecr_lifecycle_policy" "repo_policy" {

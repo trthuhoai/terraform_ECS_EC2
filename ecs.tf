@@ -37,10 +37,6 @@ resource "aws_ecs_task_definition" "task-definition" {
     # host_path = "/ecs/service-storage"
     host_path = null
   }
-  tags = {
-    "env"       = "prod"
-    "createdBy" = "hoaittt"
-  }
 }
 # resource "aws_ecs_task_definition" "task-definition-cron" {
 #   family                = "prod-deviceme-web-family-cron"
@@ -81,5 +77,32 @@ resource "aws_cloudwatch_log_group" "log_group" {
   tags = {
     "env"       = "prod"
     "createdBy" = "hoaittt"
+  }
+}
+
+resource "aws_appautoscaling_target" "ecs_target" {
+  max_capacity       = 8
+  min_capacity       = 1
+  resource_id        = "service/clusterName/serviceName"
+  scalable_dimension = "ecs:service:DesiredCount"
+  service_namespace  = "ecs"
+}
+
+resource "aws_appautoscaling_policy" "ecs-policy" {
+  name               = "scale-down"
+  policy_type        = "StepScaling"
+  resource_id        = aws_appautoscaling_target.ecs-target.resource_id
+  scalable_dimension = aws_appautoscaling_target.ecs-target.scalable_dimension
+  service_namespace  = aws_appautoscaling_target.ecs-target.service_namespace
+
+  step_scaling_policy_configuration {
+    adjustment_type         = "ChangeInCapacity"
+    cooldown                = 60
+    metric_aggregation_type = "Maximum"
+
+    step_adjustment {
+      metric_interval_upper_bound = 0
+      scaling_adjustment          = -1
+    }
   }
 }
